@@ -126,9 +126,13 @@ function App() {
   const handleGenerateStory = async () => {
     if (!inputs.theme || !inputs.mainCharacter || !inputs.setting) return;
     
+    // Clear previous story content
+    setStory('');
+    setStoryImage('');
+    setError('');
+    
     setIsLoading(true);
     setIsGeneratingImage(false);
-    setError('');
     
     try {
       console.log('Starting story generation...');
