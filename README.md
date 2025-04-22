@@ -1,61 +1,74 @@
-# Silly Story Generator
+# Silly Story Time
 
-A colorful web application that generates short, funny children's stories using Ollama's LLM capabilities.
+A fun, interactive web application that generates silly stories for children with AI-generated illustrations.
 
 ## Features
 
-- Create silly, humorous children's stories with custom characters, settings, and themes
-- Beautiful, playful UI with colorful design and fun animations
-- Powered by Ollama's LLM for creative and entertaining story generation
-- Responsive design that works on all devices
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- Ollama installed and running locally
+- Generate fun, age-appropriate stories for children under 10
+- Create custom stories with your own characters and settings
+- Choose from various themes like friendship, adventure, magic, and more
+- Get AI-generated illustrations that match your story
+- Enjoy playful animations and a child-friendly interface
 
 ## Setup
 
-1. Clone this repository
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- An API key from Stability AI for image generation
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/children-storytime.git
+   cd children-storytime
+   ```
+
 2. Install dependencies:
    ```
    npm install
    ```
-3. Make sure Ollama is installed and running on your machine
-   - Download from [Ollama's website](https://ollama.ai/)
-   - Run `ollama serve` to start the server
-   - Pull a model (e.g., `ollama pull granite3.3`)
 
-## Running the Application
+3. Set up your environment variables:
+   - Copy the `.env.example` file to `.env`
+   - Get an API key from [Stability AI](https://stability.ai/)
+   - Add your API key to the `.env` file:
+     ```
+     REACT_APP_STABILITY_API_KEY=your_api_key_here
+     ```
 
-1. Start the development server:
+4. Start the development server:
    ```
-   npm run dev
+   npm start
    ```
-2. Open your browser and navigate to `http://localhost:5173` (or the port shown in your terminal)
+
+5. Open your browser and navigate to `http://localhost:3000`
 
 ## How to Use
 
-1. Enter the main character's name
-2. Describe where the story takes place
-3. Select a fun theme from the dropdown (silly animals, magical mishaps, food adventures, etc.)
-4. Click "Generate Silly Story" to create your funny tale
-5. The generated story will appear below the form
+1. Enter a main character name (e.g., "Fluffy the Dragon")
+2. Specify a setting (e.g., "Candy Land")
+3. Choose a theme by clicking on one of the theme icons
+4. Click "Generate Silly Story" to create your story
+5. Wait for the story and illustration to be generated
+6. Enjoy your silly story!
 
-## Customizing the Ollama Model
+## Technologies Used
 
-By default, the application uses the `granite3.3` model. To use a different model:
-
-1. Open `src/services/ollamaService.ts`
-2. Change the `model` parameter in the `generateStoryWithOllama` function to your preferred model
-3. Make sure you have pulled that model using `ollama pull <model-name>`
-
-## Troubleshooting
-
-- If you see an error message, make sure Ollama is running and accessible at `http://localhost:11434`
-- Check that you have the specified model installed in Ollama
-- If the story generation fails, the application will fall back to a simple template-based story
+- React
+- TypeScript
+- Ollama for story generation
+- Stability AI API for image generation
+- CSS animations for a playful user experience
 
 ## License
 
 MIT
+
+## Acknowledgements
+
+- Ollama for providing the language model
+- Stability AI for the image generation API
+- All the emojis and fun elements that make this app special!
