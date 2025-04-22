@@ -6,12 +6,23 @@ interface StoryInputs {
 
 export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<string> => {
   try {
-    const prompt = `Create a short, funny children's story (max 150 words) with the following elements:
+    const prompt = `Create a short, funny children's story (max 150 words) that is easy to read and understand for children under 10 years old. Use simple words and short sentences.
+
     - Main character: ${inputs.mainCharacter}
     - Setting: ${inputs.setting}
     - Theme: ${inputs.theme}
     
-    The story should be silly, humorous, and appropriate for children. Include funny dialogue, silly situations, and a clear beginning, middle, and end. Make it entertaining and lighthearted.`;
+    The story should:
+    - Use simple words that a child under 10 can understand
+    - Have short, clear sentences
+    - Include lots of fun and silly moments
+    - Be about 2-3 paragraphs long
+    - Have a clear beginning, middle, and end
+    - Include some dialogue to make it more engaging
+    - Use repetition and simple patterns that children enjoy
+    - Avoid scary or complex themes
+    
+    Make it extra silly and fun!`;
 
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
