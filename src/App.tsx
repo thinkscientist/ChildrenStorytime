@@ -19,14 +19,14 @@ function App() {
   const [error, setError] = useState<string>('');
 
   const themes = [
-    { id: 'friendship', emoji: '🤝', label: 'Friendship' },
-    { id: 'adventure', emoji: '🗺️', label: 'Adventure' },
-    { id: 'magic', emoji: '✨', label: 'Magic' },
-    { id: 'animals', emoji: '🐾', label: 'Animals' },
-    { id: 'space', emoji: '🚀', label: 'Space' },
-    { id: 'ocean', emoji: '🌊', label: 'Ocean' },
-    { id: 'forest', emoji: '🌳', label: 'Forest' },
-    { id: 'school', emoji: '🏫', label: 'School' }
+    { id: 'friendship', emoji: '🤝', label: 'Best Buddies Forever!' },
+    { id: 'adventure', emoji: '🗺️', label: 'Let\'s Go Exploring!' },
+    { id: 'magic', emoji: '✨', label: 'Magical Surprises!' },
+    { id: 'animals', emoji: '🐾', label: 'Furry Friends Fun!' },
+    { id: 'space', emoji: '🚀', label: 'Zoom to the Stars!' },
+    { id: 'ocean', emoji: '🌊', label: 'Splashy Sea Fun!' },
+    { id: 'forest', emoji: '🌳', label: 'Woodland Wonders!' },
+    { id: 'school', emoji: '🏫', label: 'Learning is Fun!' }
   ];
 
   const handleInputChange = (field: string, value: string) => {

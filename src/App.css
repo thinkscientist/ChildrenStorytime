@@ -339,8 +339,9 @@ textarea {
 .theme-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.5rem;
   margin-top: 1rem;
+  padding: 1rem;
 }
 
 .theme-button {
@@ -348,34 +349,74 @@ textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
+  padding: 1.5rem;
+  border: 3px solid #e0e0e0;
+  border-radius: 20px;
   background: white;
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 100px;
+  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+  z-index: 1;
 }
 
 .theme-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
   border-color: #ff9ecd;
+  animation: wiggle 0.5s ease;
 }
 
 .theme-button.selected {
   border-color: #ff9ecd;
   background-color: #fff5f9;
-  box-shadow: 0 4px 8px rgba(255, 158, 205, 0.2);
+  box-shadow: 0 8px 16px rgba(255, 158, 205, 0.3);
+  animation: pulse 2s infinite;
 }
 
 .theme-emoji {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: 3.5rem;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+  transition: transform 0.3s ease;
+}
+
+.theme-button:hover .theme-emoji {
+  transform: scale(1.2) rotate(5deg);
 }
 
 .theme-label {
-  font-size: 0.9rem;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-size: 1.1rem;
   color: #666;
   text-align: center;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  transform: rotate(-1deg);
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: translateY(-5px) scale(1.05) rotate(0deg); }
+  25% { transform: translateY(-5px) scale(1.05) rotate(-2deg); }
+  75% { transform: translateY(-5px) scale(1.05) rotate(2deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
