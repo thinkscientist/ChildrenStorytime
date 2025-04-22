@@ -120,8 +120,12 @@ function App() {
   ];
 
   const handleInputChange = (field: string, value: string) => {
-    setInputs({ ...inputs, [field]: value })
-  }
+    setInputs({ ...inputs, [field]: value });
+    // Clear story content when any input changes
+    setStory('');
+    setStoryImage('');
+    setError('');
+  };
 
   const handleGenerateStory = async () => {
     if (!inputs.theme || !inputs.mainCharacter || !inputs.setting) return;
@@ -301,6 +305,7 @@ function App() {
               
               <div className="story-footer">
                 <p>Created with ❤️ for {inputs.mainCharacter}</p>
+                <p>Powered By IBM Granite 3.3</p>
               </div>
             </div>
             <div className="export-container">
