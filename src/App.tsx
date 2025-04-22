@@ -1,21 +1,36 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './App.css'
 import { generateStoryWithOllama } from './services/ollamaService'
 
+interface StoryInputs {
+  mainCharacter: string;
+  setting: string;
+  theme: string;
+}
+
 function App() {
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs] = useState<StoryInputs>({
     mainCharacter: '',
     setting: '',
-    theme: '',
-  })
-  const [story, setStory] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+    theme: ''
+  });
+  const [story, setStory] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  const handleInputChange = (field: string) => (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    setInputs({ ...inputs, [field]: e.target.value })
+  const themes = [
+    { id: 'friendship', emoji: '🤝', label: 'Friendship' },
+    { id: 'adventure', emoji: '🗺️', label: 'Adventure' },
+    { id: 'magic', emoji: '✨', label: 'Magic' },
+    { id: 'animals', emoji: '🐾', label: 'Animals' },
+    { id: 'space', emoji: '🚀', label: 'Space' },
+    { id: 'ocean', emoji: '🌊', label: 'Ocean' },
+    { id: 'forest', emoji: '🌳', label: 'Forest' },
+    { id: 'school', emoji: '🏫', label: 'School' }
+  ];
+
+  const handleInputChange = (field: string, value: string) => {
+    setInputs({ ...inputs, [field]: value })
   }
 
   const generateStory = async () => {
@@ -65,45 +80,42 @@ function App() {
       <p className="subtitle">Create your own funny adventure!</p>
       
       <div className="form-container">
-        <div className="form-group">
-          <label htmlFor="mainCharacter">Main Character</label>
+        <div className="input-group">
+          <label htmlFor="mainCharacter">Who is the main character?</label>
           <input
+            type="text"
             id="mainCharacter"
-            type="text"
-            placeholder="Enter the main character's name"
             value={inputs.mainCharacter}
-            onChange={handleInputChange('mainCharacter')}
-            required
+            onChange={(e) => handleInputChange('mainCharacter', e.target.value)}
+            placeholder="Enter a character name"
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="setting">Setting</label>
+        <div className="input-group">
+          <label htmlFor="setting">Where does the story take place?</label>
           <input
-            id="setting"
             type="text"
-            placeholder="Where does the story take place?"
+            id="setting"
             value={inputs.setting}
-            onChange={handleInputChange('setting')}
-            required
+            onChange={(e) => handleInputChange('setting', e.target.value)}
+            placeholder="Enter a setting"
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="theme">Theme</label>
-          <select
-            id="theme"
-            value={inputs.theme}
-            onChange={handleInputChange('theme')}
-            required
-          >
-            <option value="">Select a theme</option>
-            <option value="silly animals">Silly Animals</option>
-            <option value="magical mishaps">Magical Mishaps</option>
-            <option value="food adventures">Food Adventures</option>
-            <option value="space silliness">Space Silliness</option>
-            <option value="underwater fun">Underwater Fun</option>
-          </select>
+        <div className="input-group">
+          <label>Choose a theme for your story:</label>
+          <div className="theme-grid">
+            {themes.map((theme) => (
+              <button
+                key={theme.id}
+                className={`theme-button ${inputs.theme === theme.id ? 'selected' : ''}`}
+                onClick={() => handleInputChange('theme', theme.id)}
+              >
+                <span className="theme-emoji">{theme.emoji}</span>
+                <span className="theme-label">{theme.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         <button
