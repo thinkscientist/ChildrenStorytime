@@ -33,6 +33,32 @@ function App() {
     }
   }
 
+  const LoadingAnimation = () => {
+    const loadingMessages = [
+      "Gathering silly ideas...",
+      "Making the story extra funny...",
+      "Adding some wacky characters...",
+      "Sprinkling in some giggles...",
+      "Almost ready to make you laugh..."
+    ];
+    
+    const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    
+    return (
+      <div className="loading-container">
+        <p className="loading-message">{randomMessage}</p>
+        <div className="loading-spinner">
+          <span className="loading-emoji">🦄</span>
+          <span className="loading-emoji">🌈</span>
+          <span className="loading-emoji">🎈</span>
+          <span className="loading-emoji">🎪</span>
+          <span className="loading-emoji">🎨</span>
+        </div>
+        <p className="loading-tip">Fun fact: The average child laughs 300 times a day!</p>
+      </div>
+    );
+  };
+
   return (
     <div className="app-container">
       <h1 className="title">Silly Story Time</h1>
@@ -90,7 +116,9 @@ function App() {
 
         {error && <p className="error-message">{error}</p>}
 
-        {story && (
+        {isLoading && <LoadingAnimation />}
+
+        {story && !isLoading && (
           <div className="story-container">
             <p className="story-text">{story}</p>
           </div>
