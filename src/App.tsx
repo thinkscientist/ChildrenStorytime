@@ -4,6 +4,8 @@ import { generateStoryWithOllama } from './services/ollamaService'
 import { generateStoryImage } from './services/imageService'
 import { StoryInputs } from './types'
 import { config } from './config'
+import { generatePDF } from './services/pdfService'
+import { exportAsImage } from './services/directImageExport'
 
 // Helper function to get fallback images
 const getFallbackImage = (theme: string): string => {
@@ -48,6 +50,24 @@ function App() {
     script.onerror = () => {
       console.error('Failed to load html2pdf.js');
       setError('Failed to load PDF generation library. Please try again later.');
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  // Load html2canvas from CDN
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+    script.async = true;
+    script.onload = () => {
+      console.log('html2canvas loaded successfully');
+    };
+    script.onerror = (error) => {
+      console.error('Failed to load html2canvas:', error);
     };
     document.body.appendChild(script);
 
@@ -139,30 +159,18 @@ function App() {
     }
   };
 
-  const handleExportPDF = async () => {
-    if (!storyRef.current || !story || !storyImage || !html2pdfLoaded) {
-      console.error('Cannot generate PDF: missing required elements or library not loaded');
-      setError('PDF generation is not ready. Please try again in a moment.');
+  const handleExportImage = async () => {
+    const storyContent = document.getElementById('story-content');
+    if (!storyContent) {
+      console.error('Story content element not found');
       return;
     }
-
+    
     try {
-      console.log('Starting PDF generation...');
-      const element = storyRef.current;
-      const opt = {
-        margin: 1,
-        filename: `${inputs.mainCharacter}'s Story.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-
-      // @ts-ignore - html2pdf is loaded from CDN
-      await window.html2pdf().set(opt).from(element).save();
-      console.log('PDF generated successfully');
+      await exportAsImage(storyContent);
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      setError('Failed to generate PDF. Please try again.');
+      console.error('Failed to export image:', error);
+      alert('Failed to export image. Please try again.');
     }
   };
 
@@ -248,9 +256,10 @@ function App() {
 
         {isLoading && <LoadingAnimation />}
 
-        {story && !isLoading && (
+        {/* Story Display */}
+        {story && (
           <div className="story-container">
-            <div ref={storyRef} className="story-content">
+            <div id="story-content" className="story-content">
               <div className="story-header">
                 <h1>{inputs.mainCharacter}'s Magical Story</h1>
                 <p className="story-theme">Theme: {inputs.theme}</p>
@@ -272,11 +281,9 @@ function App() {
                     alt="Story illustration" 
                     className="story-image"
                     onError={(e) => {
+                      console.log('Image failed to load, using fallback');
                       const target = e.target as HTMLImageElement;
-                      if (!target.src.includes('images.unsplash.com')) {
-                        console.log('Using fallback image for theme:', inputs.theme);
-                        target.src = getFallbackImage(inputs.theme);
-                      }
+                      target.src = getFallbackImage(inputs.theme);
                     }}
                   />
                 </div>
@@ -292,14 +299,15 @@ function App() {
                 <p>Created with ❤️ for {inputs.mainCharacter}</p>
               </div>
             </div>
-            
-            <button 
-              className="export-button"
-              onClick={handleExportPDF}
-              disabled={isLoading || isGeneratingImage || !html2pdfLoaded}
-            >
-              📚 Save Story as PDF
-            </button>
+            <div className="export-container">
+              <button 
+                onClick={handleExportImage}
+                className="export-button"
+                disabled={!story}
+              >
+                Save as Image
+              </button>
+            </div>
           </div>
         )}
       </div>

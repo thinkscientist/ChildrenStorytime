@@ -520,6 +520,10 @@ textarea {
   background: white;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
+  color: #000;
+  font-family: Arial, sans-serif;
+  position: relative;
+  z-index: 1;
 }
 
 .story-header {
@@ -527,23 +531,29 @@ textarea {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #f0f0f0;
+  page-break-after: avoid;
 }
 
 .story-header h1 {
   color: #2c3e50;
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  page-break-after: avoid;
 }
 
 .story-theme {
   color: #7f8c8d;
   font-size: 1.2rem;
   font-style: italic;
+  page-break-after: avoid;
 }
 
 .story-image-container {
   margin: 2rem 0;
   text-align: center;
+  page-break-inside: avoid;
+  position: relative;
+  z-index: 2;
 }
 
 .story-image {
@@ -551,6 +561,9 @@ textarea {
   height: auto;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
+  page-break-inside: avoid;
 }
 
 .story-text {
@@ -558,10 +571,14 @@ textarea {
   line-height: 1.8;
   color: #34495e;
   margin: 2rem 0;
+  page-break-inside: avoid;
+  position: relative;
+  z-index: 3;
 }
 
 .story-text p {
   margin-bottom: 1.5rem;
+  page-break-inside: avoid;
 }
 
 .story-footer {
@@ -571,27 +588,29 @@ textarea {
   border-top: 2px solid #f0f0f0;
   color: #7f8c8d;
   font-style: italic;
+  page-break-before: avoid;
+  position: relative;
+  z-index: 4;
 }
 
 .export-button {
-  display: block;
-  margin: 2rem auto;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  background-color: #27ae60;
+  background-color: #4CAF50;
   color: white;
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 16px;
+  margin: 10px 0;
+  transition: background-color 0.3s;
 }
 
 .export-button:hover {
-  background-color: #219a52;
+  background-color: #45a049;
 }
 
 .export-button:disabled {
-  background-color: #95a5a6;
+  background-color: #cccccc;
   cursor: not-allowed;
 }
 
@@ -600,19 +619,39 @@ textarea {
   .story-content {
     box-shadow: none;
     padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    position: static;
+    z-index: auto;
   }
   
   .story-image {
     max-width: 80%;
     margin: 2rem auto;
+    page-break-inside: avoid;
+    position: static;
+    z-index: auto;
   }
   
   .story-text {
     font-size: 12pt;
     line-height: 1.6;
+    page-break-inside: avoid;
+    position: static;
+    z-index: auto;
+  }
+  
+  .story-text p {
+    page-break-inside: avoid;
   }
   
   .export-button {
     display: none;
+  }
+  
+  @page {
+    margin: 1in;
+    size: letter portrait;
   }
 }
