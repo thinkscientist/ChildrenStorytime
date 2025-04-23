@@ -6,6 +6,7 @@ import { StoryInputs } from './types'
 import { config } from './config'
 import { generatePDF } from './services/pdfService'
 import { exportAsImage } from './services/directImageExport'
+import { audioService } from './services/audioService'
 
 // Helper function to get fallback images
 const getFallbackImage = (theme: string): string => {
@@ -157,6 +158,11 @@ function App() {
     { id: 'school', emoji: '🏫', label: 'Learning is Fun!' }
   ];
 
+  // Function to handle theme hover
+  const handleThemeHover = () => {
+    audioService.playThemeHoverSound();
+  };
+
   const handleAddChild = () => {
     setAdditionalChildren([...additionalChildren, '']);
   };
@@ -184,6 +190,9 @@ function App() {
     setError(null);
     setStory('');
     setImageUrl('');
+
+    // Start playing background music
+    await audioService.playBackgroundMusic();
 
     try {
       if (ollamaAvailable) {
@@ -225,6 +234,8 @@ function App() {
       setImageUrl(mockImageUrl);
     } finally {
       setIsLoading(false);
+      // Stop the background music when story generation is complete
+      audioService.stopBackgroundMusic();
     }
   };
 
@@ -382,6 +393,7 @@ Everyone worked together and had the most amazing time! The end.`;
                 key={themeOption.id}
                 className={`theme-button ${selectedTheme === themeOption.id ? 'selected' : ''}`}
                 onClick={() => setSelectedTheme(themeOption.id)}
+                onMouseEnter={handleThemeHover}
               >
                 <span className="theme-emoji">{themeOption.emoji}</span>
                 <span className="theme-label">{themeOption.label}</span>
