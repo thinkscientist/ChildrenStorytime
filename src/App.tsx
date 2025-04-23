@@ -258,15 +258,27 @@ function App() {
     const themeDescription = themeDescriptions[theme] || 'having a wonderful time';
     
     // Generate a story based on the inputs
-    return `Once upon a time, ${childrenList} were ${themeDescription}. 
+    if (additionalChildren.length > 0) {
+      return `Once upon a time, ${childrenList} were ${themeDescription}. 
 
-${childName} had just turned ${age} years old and was excited to celebrate with ${additionalChildren.length > 0 ? 'their friends' : 'everyone'}.
+${childName} had just turned ${age} years old and was excited to celebrate with their friends.
 
 As they ${themeDescription}, they learned an important lesson about ${moral || 'being kind to others'}. 
 
-${additionalChildren.length > 0 ? `${additionalChildren[0]} had an idea to make the day even more special.` : `${childName} had an idea to make the day even more special.`}
+${additionalChildren[0]} had an idea to make the day even more special, and ${additionalChildren.length > 1 ? `${additionalChildren[1]} helped put the plan into action.` : 'everyone helped put the plan into action.'}
 
 They all worked together and had the most amazing time! The end.`;
+    } else {
+      return `Once upon a time, ${childName} was ${themeDescription}. 
+
+${childName} had just turned ${age} years old and was excited to celebrate with everyone.
+
+As ${childName} ${themeDescription}, they learned an important lesson about ${moral || 'being kind to others'}. 
+
+${childName} had an idea to make the day even more special.
+
+Everyone worked together and had the most amazing time! The end.`;
+    }
   };
 
   const handleExportImage = async () => {
@@ -395,8 +407,12 @@ They all worked together and had the most amazing time! The end.`;
           <div className="story-container">
             <div id="story-content" className="story-content">
               <div className="story-header">
-                <h1>{childName}'s Magical Story</h1>
-                <p className="story-theme">Theme: {selectedTheme}</p>
+                <h1>{additionalChildren.length > 0 ? "Our Magical Story" : `${childName}'s Magical Story`}</h1>
+                <p className="story-theme">
+                  {additionalChildren.length > 0 
+                    ? `Featuring ${childName} and ${additionalChildren.join(', ')}` 
+                    : `Theme: ${selectedTheme}`}
+                </p>
               </div>
               
               {imageUrl && (
@@ -421,7 +437,9 @@ They all worked together and had the most amazing time! The end.`;
               </div>
               
               <div className="story-footer">
-                <p>Created with ❤️ for {childName}</p>
+                <p>Created with ❤️ for {additionalChildren.length > 0 
+                  ? `${childName} and ${additionalChildren.join(', ')}` 
+                  : childName}</p>
                 <p>Powered By IBM Granite 3.3</p>
               </div>
             </div>
