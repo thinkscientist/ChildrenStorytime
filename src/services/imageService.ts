@@ -1,6 +1,33 @@
 import { StoryInputs } from '../types';
 import { config } from '../config';
 
+// Types for Stability AI API
+interface TextPrompt {
+  text: string;
+  weight: number;
+}
+
+interface StabilityImageRequest {
+  text_prompts: TextPrompt[];
+  cfg_scale?: number;
+  height?: number;
+  width?: number;
+  steps?: number;
+  samples?: number;
+  seed?: number;
+  style_preset?: string;
+  clip_guidance_preset?: string;
+  sampler?: string;
+}
+
+interface StabilityImageResponse {
+  artifacts: {
+    base64: string;
+    finishReason: string;
+    seed: number;
+  }[];
+}
+
 // This function will generate an image based on the story content
 export const generateStoryImage = async (story: string, theme: string): Promise<string> => {
   try {
@@ -8,8 +35,8 @@ export const generateStoryImage = async (story: string, theme: string): Promise<
     const prompt = createImagePrompt(story, theme);
     console.log('Generated image prompt:', prompt);
     
-    // Call the Stable Diffusion API
-    return await callStableDiffusionAPI(prompt);
+    // Call the Stability AI API
+    return await callStabilityAPI(prompt);
   } catch (error) {
     console.error('Error in generateStoryImage:', error);
     // Return a fallback image if the API call fails
@@ -29,12 +56,12 @@ const createImagePrompt = (story: string, theme: string): string => {
   Scene: ${firstParagraph.substring(0, 100)}...`;
 };
 
-// Call the Stable Diffusion API
-const callStableDiffusionAPI = async (prompt: string): Promise<string> => {
+// Call the Stability AI API
+const callStabilityAPI = async (prompt: string): Promise<string> => {
   // Get the API key from the config
   const API_KEY = config.stabilityApiKey;
   
-  console.log('Starting Stable Diffusion API call...');
+  console.log('Starting Stability AI API call...');
   console.log('API Key available:', config.hasStabilityApiKey);
   console.log('API Key length:', API_KEY?.length || 0);
   
@@ -45,33 +72,25 @@ const callStableDiffusionAPI = async (prompt: string): Promise<string> => {
   
   try {
     console.log('Making API request to Stability AI with prompt:', prompt);
-    const requestBody = {
-      text_prompts: [
-        {
-          text: prompt,
-          weight: 1
-        },
-        {
-          text: "scary, dark, violent, inappropriate for children, realistic, photorealistic, 3D render, CGI",
-          weight: -1
-        }
-      ],
-      cfg_scale: 7,
-      height: 1024,
-      width: 1024,
-      steps: 30,
-      samples: 1,
-    };
-    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    
+    // Create FormData for the request
+    const formData = new FormData();
+    formData.append('none', '');
+    formData.append('prompt', prompt);
+    formData.append('output_format', 'webp');
+    
+    console.log('Request data:', {
+      prompt,
+      output_format: 'webp'
+    });
 
-    const response = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
+    const response = await fetch('https://api.stability.ai/v2beta/stable-image/generate/core', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'image/*'
       },
-      body: JSON.stringify(requestBody),
+      body: formData
     });
 
     console.log('API response status:', response.status);
@@ -83,19 +102,17 @@ const callStableDiffusionAPI = async (prompt: string): Promise<string> => {
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
 
-    const responseData = await response.json();
-    console.log('API response received. Response keys:', Object.keys(responseData));
+    // The API returns the image directly as binary data
+    const imageBlob = await response.blob();
+    console.log('Image blob received, size:', imageBlob.size);
     
-    // The API returns base64 encoded images
-    if (responseData.artifacts && responseData.artifacts.length > 0) {
-      const imageData = responseData.artifacts[0].base64;
-      console.log('Base64 image data length:', imageData.length);
-      console.log('First 100 characters of base64 data:', imageData.substring(0, 100));
-      return `data:image/png;base64,${imageData}`;
-    } else {
-      console.error('No image data in response:', responseData);
-      throw new Error('No image generated');
-    }
+    // Convert the blob to a data URL
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(imageBlob);
+    });
   } catch (error) {
     console.error('Error calling Stability API:', error);
     console.log('Falling back to Unsplash API...');

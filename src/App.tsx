@@ -440,7 +440,7 @@ Everyone worked together and had the most amazing time! The end.`;
                 <p>Created with ❤️ for {additionalChildren.length > 0 
                   ? `${childName} and ${additionalChildren.join(', ')}` 
                   : childName}</p>
-                <p>Powered By IBM Granite 3.3</p>
+                <p>Powered By IBM Granite 3.3 & Stable Diffusion</p>
               </div>
             </div>
             <div className="export-container">

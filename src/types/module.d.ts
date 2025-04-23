@@ -3,11 +3,6 @@ declare module 'html2canvas' {
   export default html2canvas;
 }
 
-declare module 'jspdf' {
-  const jsPDF: any;
-  export default jsPDF;
-}
-
 // Add html2canvas to window object
 declare global {
   interface Window {
