@@ -35,8 +35,8 @@ export const generateStoryImage = async (story: string, theme: string): Promise<
     const prompt = createImagePrompt(story, theme);
     console.log('Generated image prompt:', prompt);
     
-    // Call the Stability AI API
-    return await callStabilityAPI(prompt);
+    // Call the Stability AI API with both prompt and theme
+    return await callStabilityAPI(prompt, theme);
   } catch (error) {
     console.error('Error in generateStoryImage:', error);
     // Return a fallback image if the API call fails
@@ -64,8 +64,48 @@ const createImagePrompt = (story: string, theme: string): string => {
   Scene: ${storyContent.substring(0, 200)}...`;
 };
 
+// Get a fallback image based on the theme or prompt
+const getFallbackImage = (theme: string, prompt?: string): string => {
+  // First try to get a theme-specific image
+  const themeImages: Record<string, string> = {
+    'friendship': 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&h=600&fit=crop',
+    'adventure': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop',
+    'magic': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop',
+    'animals': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=800&h=600&fit=crop',
+    'space': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=600&fit=crop',
+    'ocean': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop',
+    'forest': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop',
+    'school': 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop'
+  };
+
+  // If we have a theme-specific image, use it
+  if (theme in themeImages) {
+    console.log('Using theme-specific fallback image for:', theme);
+    return themeImages[theme];
+  }
+
+  // If we have a prompt, try to use it for a more relevant fallback
+  if (prompt) {
+    console.log('Using prompt-based fallback image');
+    // Extract keywords from the prompt
+    const keywords = prompt
+      .toLowerCase()
+      .replace(/[^\w\s]/g, '')
+      .split(' ')
+      .filter(word => word.length > 3)
+      .slice(0, 5)
+      .join(',');
+    
+    return `https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop&q=${encodeURIComponent(keywords)}`;
+  }
+
+  // Default fallback if no theme or prompt matches
+  console.log('Using default fallback image');
+  return 'https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop';
+};
+
 // Call the Stability AI API
-const callStabilityAPI = async (prompt: string): Promise<string> => {
+const callStabilityAPI = async (prompt: string, theme: string): Promise<string> => {
   // Get the API key from the config
   const API_KEY = config.stabilityApiKey;
   
@@ -123,51 +163,7 @@ const callStabilityAPI = async (prompt: string): Promise<string> => {
     });
   } catch (error) {
     console.error('Error calling Stability API:', error);
-    console.log('Falling back to Unsplash API...');
-    return callUnsplashAPI(prompt);
-  }
-};
-
-// Get a fallback image based on the theme
-const getFallbackImage = (theme: string): string => {
-  const themeImages: Record<string, string> = {
-    'friendship': 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&h=600&fit=crop',
-    'adventure': 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&h=600&fit=crop',
-    'magic': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&h=600&fit=crop',
-    'animals': 'https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=800&h=600&fit=crop',
-    'space': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=600&fit=crop',
-    'ocean': 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop',
-    'forest': 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop',
-    'school': 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&h=600&fit=crop'
-  };
-  
-  return themeImages[theme] || 'https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop';
-};
-
-// Fallback to Unsplash API
-const callUnsplashAPI = async (prompt: string): Promise<string> => {
-  try {
-    console.log('Making API request to Unsplash...');
-    
-    // Extract keywords from the prompt
-    const keywords = prompt
-      .toLowerCase()
-      .replace(/[^\w\s]/g, '')
-      .split(' ')
-      .filter(word => word.length > 3)
-      .slice(0, 5)
-      .join(',');
-    
-    console.log('Unsplash search keywords:', keywords);
-    
-    // Use a static Unsplash image instead of the random API
-    const imageUrl = `https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop&q=${encodeURIComponent(keywords)}`;
-    console.log('Using static Unsplash image:', imageUrl);
-    
-    return imageUrl;
-  } catch (error) {
-    console.error('Error with Unsplash fallback:', error);
-    // Return a default static image if everything fails
-    return 'https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop';
+    console.log('Using fallback image...');
+    return getFallbackImage(theme, prompt);
   }
 }; 

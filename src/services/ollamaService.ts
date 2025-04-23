@@ -8,7 +8,7 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
   try {
     console.log('Generating story with Ollama for:', inputs);
     
-    const prompt = `Create a short, funny children's story (max 150 words) that is easy to read and understand for children under 10 years old. Use simple words and short sentences.
+    const prompt = `Create a short, funny children's story (max 200 words) that is easy to read and understand for children under 10 years old. Use simple words and short sentences.
 
     - Main character: ${inputs.mainCharacter}
     - Setting: ${inputs.setting}
@@ -18,7 +18,7 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
     - Use simple words that a child under 10 can understand
     - Have short, clear sentences
     - Include lots of fun and silly moments
-    - Be about 2-3 paragraphs long
+    - Be about 3-4 paragraphs long
     - Have a clear beginning, middle, and end
     - Include some dialogue to make it more engaging
     - Use repetition and simple patterns that children enjoy
