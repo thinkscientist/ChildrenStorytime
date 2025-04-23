@@ -1,4 +1,3 @@
-import { config } from '../config';
 
 class AudioService {
   private audio: HTMLAudioElement | null = null;
@@ -11,7 +10,7 @@ class AudioService {
     this.audio.loop = true; // Loop the music
     
     this.hoverAudio = new Audio();
-    this.hoverAudio.src = 'public/sounds/background-music.mp3';
+    this.hoverAudio.src = '/sounds/background-music.mp3';
     this.hoverAudio.volume = 0.3; // Set volume to 30% for hover sound
   }
 
@@ -20,7 +19,7 @@ class AudioService {
 
     try {
       // Use a gentle, calming background music
-      this.audio.src = 'public/sounds/background-music.wav';
+      this.audio.src = '/sounds/background-music.wav';
       await this.audio.play();
       this.isPlaying = true;
     } catch (error) {

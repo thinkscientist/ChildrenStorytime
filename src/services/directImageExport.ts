@@ -41,10 +41,9 @@ export const exportAsImage = async (element: HTMLElement): Promise<void> => {
     
     container.appendChild(clone);
     document.body.appendChild(container);
-
     // Use html2canvas if available
-    if (window.html2canvas) {
-      const canvas = await window.html2canvas(container, {
+    if ((window as any).html2canvas) {
+      const canvas = await (window as any).html2canvas(container, {
         backgroundColor: '#ffffff',
         scale: 2, // Higher quality
         logging: false,
