@@ -6,6 +6,8 @@ interface StoryInputs {
 
 export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<string> => {
   try {
+    console.log('Generating story with Ollama for:', inputs);
+    
     const prompt = `Create a short, funny children's story (max 150 words) that is easy to read and understand for children under 10 years old. Use simple words and short sentences.
 
     - Main character: ${inputs.mainCharacter}
@@ -24,6 +26,9 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
     
     Make it extra silly and fun!`;
 
+    console.log('Sending request to Ollama API...');
+    console.log('Ollama API URL: http://localhost:11434/api/generate');
+    
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',
       headers: {
@@ -36,11 +41,19 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
       }),
     });
 
+    console.log('Ollama API response status:', response.status);
+    
     if (!response.ok) {
       throw new Error(`Ollama API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Ollama API response received. Story length:', data.response?.length || 0);
+    
+    if (!data.response) {
+      throw new Error('No story content received from Ollama API');
+    }
+    
     return data.response;
   } catch (error) {
     console.error('Error generating story with Ollama:', error);

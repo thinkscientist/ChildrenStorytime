@@ -24,19 +24,29 @@ const getFallbackImage = (theme: string): string => {
   return themeImages[theme] || 'https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop';
 };
 
+interface StoryRequest {
+  childName: string;
+  additionalChildren: string[];  // New field for additional children
+  age: number;
+  theme: string;
+  moral: string;
+  length: 'short' | 'medium' | 'long';
+}
+
 function App() {
-  const [inputs, setInputs] = useState<StoryInputs>({
-    mainCharacter: '',
-    setting: '',
-    theme: ''
-  });
   const [story, setStory] = useState<string>('');
-  const [storyImage, setStoryImage] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [imageUrl, setImageUrl] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [childName, setChildName] = useState('');
+  const [additionalChildren, setAdditionalChildren] = useState<string[]>(['']); // New state for additional children
+  const [age, setAge] = useState<number>(5);
+  const [selectedTheme, setSelectedTheme] = useState(''); // Renamed from theme to selectedTheme
+  const [moral, setMoral] = useState('');
+  const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const storyRef = useRef<HTMLDivElement>(null);
   const [html2pdfLoaded, setHtml2pdfLoaded] = useState<boolean>(false);
+  const [ollamaAvailable, setOllamaAvailable] = useState<boolean>(false);
 
   // Load html2pdf.js from CDN
   useEffect(() => {
@@ -108,6 +118,34 @@ function App() {
     }
   };
 
+  // Check if Ollama is available
+  useEffect(() => {
+    const checkOllamaAvailability = async () => {
+      try {
+        console.log('Checking if Ollama is available...');
+        const response = await fetch('http://localhost:11434/api/tags', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (response.ok) {
+          console.log('Ollama is available!');
+          setOllamaAvailable(true);
+        } else {
+          console.warn('Ollama is not available. Status:', response.status);
+          setOllamaAvailable(false);
+        }
+      } catch (error) {
+        console.warn('Ollama is not available. Error:', error);
+        setOllamaAvailable(false);
+      }
+    };
+    
+    checkOllamaAvailability();
+  }, []);
+
   const themes = [
     { id: 'friendship', emoji: '🤝', label: 'Best Buddies Forever!' },
     { id: 'adventure', emoji: '🗺️', label: 'Let\'s Go Exploring!' },
@@ -119,52 +157,116 @@ function App() {
     { id: 'school', emoji: '🏫', label: 'Learning is Fun!' }
   ];
 
-  const handleInputChange = (field: string, value: string) => {
-    setInputs({ ...inputs, [field]: value });
-    // Clear story content when any input changes
-    setStory('');
-    setStoryImage('');
-    setError('');
+  const handleAddChild = () => {
+    setAdditionalChildren([...additionalChildren, '']);
+  };
+
+  const handleRemoveChild = (index: number) => {
+    setAdditionalChildren(additionalChildren.filter((_, i) => i !== index));
+  };
+
+  const handleAdditionalChildChange = (index: number, value: string) => {
+    const newChildren = [...additionalChildren];
+    newChildren[index] = value;
+    setAdditionalChildren(newChildren);
   };
 
   const handleGenerateStory = async () => {
-    if (!inputs.theme || !inputs.mainCharacter || !inputs.setting) return;
-    
-    // Clear previous story content
-    setStory('');
-    setStoryImage('');
-    setError('');
-    
+    if (!childName.trim()) {
+      setError('Please enter the main child\'s name');
+      return;
+    }
+
+    // Filter out empty names from additional children
+    const validAdditionalChildren = additionalChildren.filter(name => name.trim());
+
     setIsLoading(true);
-    setIsGeneratingImage(false);
-    
+    setError(null);
+    setStory('');
+    setImageUrl('');
+
     try {
-      console.log('Starting story generation...');
-      const story = await generateStoryWithOllama(inputs);
-      
-      console.log('Story generated successfully:', story.substring(0, 100) + '...');
-      setStory(story);
-      
-      // Generate image based on the story content
-      console.log('Starting image generation...');
-      setIsGeneratingImage(true);
-      try {
-        const imageUrl = await generateStoryImage(story, inputs.theme);
-        console.log('Image generated successfully. URL type:', typeof imageUrl);
-        console.log('Image URL starts with:', imageUrl.substring(0, 50));
-        setStoryImage(imageUrl);
-      } catch (imageError) {
-        console.error('Error generating image:', imageError);
-        setError('Failed to generate image. Using fallback image.');
-        setStoryImage(getFallbackImage(inputs.theme));
+      if (ollamaAvailable) {
+        // Create inputs for Ollama service
+        const inputs: StoryInputs = {
+          mainCharacter: childName,
+          setting: validAdditionalChildren.length > 0 
+            ? `with ${validAdditionalChildren.join(', ')}` 
+            : 'in a magical place',
+          theme: selectedTheme
+        };
+
+        // Generate story using Ollama
+        const generatedStory = await generateStoryWithOllama(inputs);
+        
+        // Generate image based on the story content
+        const imageUrl = await generateStoryImage(generatedStory, selectedTheme);
+        
+        setStory(generatedStory);
+        setImageUrl(imageUrl);
+      } else {
+        // Use mock story if Ollama is not available
+        console.log('Ollama is not available, using mock story');
+        const mockStory = generateMockStory(childName, validAdditionalChildren, selectedTheme, age, moral, length);
+        const mockImageUrl = getFallbackImage(selectedTheme);
+        
+        setStory(mockStory);
+        setImageUrl(mockImageUrl);
       }
     } catch (error) {
       console.error('Error generating story:', error);
       setError('Failed to generate story. Please try again.');
+      
+      // Fallback to mock story if Ollama fails
+      const mockStory = generateMockStory(childName, validAdditionalChildren, selectedTheme, age, moral, length);
+      const mockImageUrl = getFallbackImage(selectedTheme);
+      
+      setStory(mockStory);
+      setImageUrl(mockImageUrl);
     } finally {
       setIsLoading(false);
-      setIsGeneratingImage(false);
     }
+  };
+
+  // Mock story generation function
+  const generateMockStory = (
+    childName: string, 
+    additionalChildren: string[], 
+    theme: string, 
+    age: number, 
+    moral: string, 
+    length: 'short' | 'medium' | 'long'
+  ): string => {
+    // Create a list of all children
+    const allChildren = [childName, ...additionalChildren];
+    const childrenList = allChildren.length > 1 
+      ? `${allChildren.slice(0, -1).join(', ')} and ${allChildren[allChildren.length - 1]}`
+      : childName;
+    
+    // Theme descriptions
+    const themeDescriptions: Record<string, string> = {
+      'friendship': 'learning about friendship and working together',
+      'adventure': 'going on an exciting adventure',
+      'magic': 'discovering magical powers',
+      'animals': 'meeting talking animals',
+      'space': 'exploring the stars and planets',
+      'ocean': 'swimming with sea creatures',
+      'forest': 'exploring a magical forest',
+      'school': 'having fun at school'
+    };
+    
+    const themeDescription = themeDescriptions[theme] || 'having a wonderful time';
+    
+    // Generate a story based on the inputs
+    return `Once upon a time, ${childrenList} were ${themeDescription}. 
+
+${childName} had just turned ${age} years old and was excited to celebrate with ${additionalChildren.length > 0 ? 'their friends' : 'everyone'}.
+
+As they ${themeDescription}, they learned an important lesson about ${moral || 'being kind to others'}. 
+
+${additionalChildren.length > 0 ? `${additionalChildren[0]} had an idea to make the day even more special.` : `${childName} had an idea to make the day even more special.`}
+
+They all worked together and had the most amazing time! The end.`;
   };
 
   const handleExportImage = async () => {
@@ -216,44 +318,61 @@ function App() {
             <span key={index}>{letter}</span>
           ))}
         </h1>
-        <p>Create magical stories with AI!</p>
+        <p>Create magical stories with AI! ✨</p>
       </header>
       <p className="subtitle">Create your own funny adventure!</p>
       
       <div className="form-container">
         <div className="input-group">
-          <label htmlFor="mainCharacter">Who is the main character?</label>
+          <label htmlFor="childName">Main Child's Name:</label>
           <input
             type="text"
-            id="mainCharacter"
-            value={inputs.mainCharacter}
-            onChange={(e) => handleInputChange('mainCharacter', e.target.value)}
-            placeholder="Enter a character name"
+            id="childName"
+            value={childName}
+            onChange={(e) => setChildName(e.target.value)}
+            placeholder="Enter the main child's name"
           />
         </div>
 
-        <div className="input-group">
-          <label htmlFor="setting">Where does the story take place?</label>
-          <input
-            type="text"
-            id="setting"
-            value={inputs.setting}
-            onChange={(e) => handleInputChange('setting', e.target.value)}
-            placeholder="Enter a setting"
-          />
+        <div className="additional-children">
+          <label>Additional Children (Optional):</label>
+          {additionalChildren.map((name, index) => (
+            <div key={index} className="additional-child-input">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => handleAdditionalChildChange(index, e.target.value)}
+                placeholder={`Enter child ${index + 2}'s name`}
+              />
+              {index > 0 && (
+                <button 
+                  className="remove-child-btn"
+                  onClick={() => handleRemoveChild(index)}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          <button 
+            className="add-child-btn"
+            onClick={handleAddChild}
+          >
+            + Add Another Child
+          </button>
         </div>
 
         <div className="input-group">
           <label>Choose a theme for your story:</label>
           <div className="theme-grid">
-            {themes.map((theme) => (
+            {themes.map((themeOption) => (
               <button
-                key={theme.id}
-                className={`theme-button ${inputs.theme === theme.id ? 'selected' : ''}`}
-                onClick={() => handleInputChange('theme', theme.id)}
+                key={themeOption.id}
+                className={`theme-button ${selectedTheme === themeOption.id ? 'selected' : ''}`}
+                onClick={() => setSelectedTheme(themeOption.id)}
               >
-                <span className="theme-emoji">{theme.emoji}</span>
-                <span className="theme-label">{theme.label}</span>
+                <span className="theme-emoji">{themeOption.emoji}</span>
+                <span className="theme-label">{themeOption.label}</span>
               </button>
             ))}
           </div>
@@ -262,9 +381,9 @@ function App() {
         <button
           className="generate-button"
           onClick={handleGenerateStory}
-          disabled={!inputs.mainCharacter || !inputs.setting || !inputs.theme || isLoading || isGeneratingImage}
+          disabled={!childName || !selectedTheme || isLoading}
         >
-          {isLoading ? 'Creating Silly Story...' : isGeneratingImage ? 'Creating Illustration...' : 'Generate Silly Story'}
+          {isLoading ? 'Creating Silly Story...' : 'Generate Silly Story'}
         </button>
 
         {error && <p className="error-message">{error}</p>}
@@ -276,29 +395,20 @@ function App() {
           <div className="story-container">
             <div id="story-content" className="story-content">
               <div className="story-header">
-                <h1>{inputs.mainCharacter}'s Magical Story</h1>
-                <p className="story-theme">Theme: {inputs.theme}</p>
+                <h1>{childName}'s Magical Story</h1>
+                <p className="story-theme">Theme: {selectedTheme}</p>
               </div>
               
-              {isGeneratingImage ? (
-                <div className="image-loading-container">
-                  <p className="image-loading-message">Creating a magical illustration...</p>
-                  <div className="image-loading-spinner">
-                    <span className="image-loading-emoji">🎨</span>
-                    <span className="image-loading-emoji">🖌️</span>
-                    <span className="image-loading-emoji">✨</span>
-                  </div>
-                </div>
-              ) : storyImage && (
+              {imageUrl && (
                 <div className="story-image-container">
                   <img 
-                    src={storyImage} 
+                    src={imageUrl} 
                     alt="Story illustration" 
                     className="story-image"
                     onError={(e) => {
                       console.log('Image failed to load, using fallback');
                       const target = e.target as HTMLImageElement;
-                      target.src = getFallbackImage(inputs.theme);
+                      target.src = getFallbackImage(selectedTheme);
                     }}
                   />
                 </div>
@@ -311,7 +421,7 @@ function App() {
               </div>
               
               <div className="story-footer">
-                <p>Created with ❤️ for {inputs.mainCharacter}</p>
+                <p>Created with ❤️ for {childName}</p>
                 <p>Powered By IBM Granite 3.3</p>
               </div>
             </div>
