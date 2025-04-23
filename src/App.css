@@ -131,20 +131,19 @@ label {
 
 input, select, textarea {
   width: 100%;
-  padding: 0.8rem;
-  border: 3px solid #ddd;
-  border-radius: var(--border-radius);
-  font-size: 1.1rem;
-  font-family: inherit;
-  transition: all 0.3s;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
   background-color: #fff;
+  transition: border-color 0.3s;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 0 3px rgba(0, 194, 255, 0.2);
-  transform: scale(1.02);
+  border-color: #4ecdc4;
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
 }
 
 textarea {
@@ -654,4 +653,129 @@ textarea {
     margin: 1in;
     size: letter portrait;
   }
+}
+
+/* Animated Header - Updated */
+.app-header {
+  position: relative;
+  overflow: hidden;
+  padding: 20px 0;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.app-header h1 {
+  font-size: 5.5rem;
+  margin: 0;
+  color: #ff6b6b;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  display: inline-block;
+  animation: bounce 2s ease infinite;
+  transform-origin: center;
+}
+
+/* Rainbow text effect */
+.app-header h1 span {
+  display: inline-block;
+  animation: rainbow 3s linear infinite;
+  font-weight: bold;
+}
+
+.app-header h1 span:nth-child(1) { animation-delay: 0s; }
+.app-header h1 span:nth-child(2) { animation-delay: 0.1s; }
+.app-header h1 span:nth-child(3) { animation-delay: 0.2s; }
+.app-header h1 span:nth-child(4) { animation-delay: 0.3s; }
+.app-header h1 span:nth-child(5) { animation-delay: 0.4s; }
+.app-header h1 span:nth-child(6) { animation-delay: 0.5s; }
+.app-header h1 span:nth-child(7) { animation-delay: 0.6s; }
+.app-header h1 span:nth-child(8) { animation-delay: 0.7s; }
+.app-header h1 span:nth-child(9) { animation-delay: 0.8s; }
+.app-header h1 span:nth-child(10) { animation-delay: 0.9s; }
+.app-header h1 span:nth-child(11) { animation-delay: 1.0s; }
+.app-header h1 span:nth-child(12) { animation-delay: 1.1s; }
+.app-header h1 span:nth-child(13) { animation-delay: 1.2s; }
+.app-header h1 span:nth-child(14) { animation-delay: 1.3s; }
+.app-header h1 span:nth-child(15) { animation-delay: 1.4s; }
+
+/* Fun emoji decorations */
+.app-header h1::before {
+  content: "📚";
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2.5rem;
+  animation: swing 2s ease-in-out infinite;
+}
+
+.app-header h1::after {
+  content: "✨";
+  position: absolute;
+  top: -10px;
+  right: -30px;
+  font-size: 2rem;
+  animation: twinkle 1.5s ease-in-out infinite alternate;
+}
+
+.app-header p {
+  font-size: 1.5rem;
+  margin: 15px 0 0;
+  color: #555;
+  animation: fadeIn 1s ease-in-out;
+  position: relative;
+}
+
+.app-header p::before,
+.app-header p::after {
+  content: "🌟";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  animation: spin 3s linear infinite;
+}
+
+.app-header p::before {
+  left: -30px;
+}
+
+.app-header p::after {
+  right: -30px;
+}
+
+/* Animation keyframes */
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Additional animation keyframes */
+@keyframes rainbow {
+  0% { color: #ff6b6b; }
+  20% { color: #4ecdc4; }
+  40% { color: #45b7d1; }
+  60% { color: #96e6a1; }
+  80% { color: #ffd166; }
+  100% { color: #ff6b6b; }
+}
+
+@keyframes swing {
+  0%, 100% { transform: translateY(-50%) rotate(-10deg); }
+  50% { transform: translateY(-50%) rotate(10deg); }
 }

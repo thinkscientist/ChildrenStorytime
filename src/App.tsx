@@ -210,7 +210,14 @@ function App() {
 
   return (
     <div className="app-container">
-      <h1 className="title">Silly Story Time</h1>
+      <header className="app-header">
+        <h1>
+          {Array.from("Silly Story Time").map((letter, index) => (
+            <span key={index}>{letter}</span>
+          ))}
+        </h1>
+        <p>Create magical stories with AI!</p>
+      </header>
       <p className="subtitle">Create your own funny adventure!</p>
       
       <div className="form-container">
