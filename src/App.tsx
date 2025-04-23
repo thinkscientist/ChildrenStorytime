@@ -407,10 +407,10 @@ Everyone worked together and had the most amazing time! The end.`;
           <div className="story-container">
             <div id="story-content" className="story-content">
               <div className="story-header">
-                <h1>{additionalChildren.length > 0 ? "Our Magical Story" : `${childName}'s Magical Story`}</h1>
+                <h1>{additionalChildren.some(name => name.trim() !== '') ? "Our Magical Story" : `${childName}'s Magical Story`}</h1>
                 <p className="story-theme">
-                  {additionalChildren.length > 0 
-                    ? `Featuring ${childName} and ${additionalChildren.join(', ')}` 
+                  {additionalChildren.some(name => name.trim() !== '') 
+                    ? `Featuring ${childName} and ${additionalChildren.filter(name => name.trim() !== '').join(', ')}` 
                     : `Theme: ${selectedTheme}`}
                 </p>
               </div>
@@ -437,8 +437,8 @@ Everyone worked together and had the most amazing time! The end.`;
               </div>
               
               <div className="story-footer">
-                <p>Created with ❤️ for {additionalChildren.length > 0 
-                  ? `${childName} and ${additionalChildren.join(', ')}` 
+                <p>Created with ❤️ for {additionalChildren.some(name => name.trim() !== '') 
+                  ? `${childName} and ${additionalChildren.filter(name => name.trim() !== '').join(', ')}` 
                   : childName}</p>
                 <p>Powered By IBM Granite 3.3 & Stable Diffusion</p>
               </div>

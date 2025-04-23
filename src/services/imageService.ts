@@ -46,14 +46,22 @@ export const generateStoryImage = async (story: string, theme: string): Promise<
 
 // Create a prompt for the image generation API based on the story content
 const createImagePrompt = (story: string, theme: string): string => {
-  // Extract the first few sentences to get the main scene
-  const firstParagraph = story.split('\n')[0];
+  // Extract more content from the story
+  const paragraphs = story.split('\n').filter(p => p.trim().length > 0);
   
-  // Create a child-friendly, colorful prompt
+  // Get the first two paragraphs for more context
+  const storyContent = paragraphs.slice(0, 2).join(' ');
+  
+  // Extract character names (assuming they start with capital letters)
+  const characterMatches = storyContent.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g) || [];
+  const characters = [...new Set(characterMatches)].join(', ');
+  
+  // Create a more detailed, child-friendly prompt
   return `A colorful, child-friendly illustration for a children's story about ${theme}. 
   The scene should be bright, cheerful, and suitable for children under 10. 
   Style: cartoon, vibrant colors, simple shapes, no scary elements. 
-  Scene: ${firstParagraph.substring(0, 100)}...`;
+  Characters: ${characters || 'the main characters'}. 
+  Scene: ${storyContent.substring(0, 200)}...`;
 };
 
 // Call the Stability AI API
