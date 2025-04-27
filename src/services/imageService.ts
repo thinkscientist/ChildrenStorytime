@@ -1,32 +1,4 @@
-import { StoryInputs } from '../types';
 import { config } from '../config';
-
-// Types for Stability AI API
-interface TextPrompt {
-  text: string;
-  weight: number;
-}
-
-interface StabilityImageRequest {
-  text_prompts: TextPrompt[];
-  cfg_scale?: number;
-  height?: number;
-  width?: number;
-  steps?: number;
-  samples?: number;
-  seed?: number;
-  style_preset?: string;
-  clip_guidance_preset?: string;
-  sampler?: string;
-}
-
-interface StabilityImageResponse {
-  artifacts: {
-    base64: string;
-    finishReason: string;
-    seed: number;
-  }[];
-}
 
 // This function will generate an image based on the story content
 export const generateStoryImage = async (story: string, theme: string): Promise<string> => {
