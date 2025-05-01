@@ -4,7 +4,6 @@ import { generateStoryWithOllama } from './services/ollamaService'
 import { generateStoryImage } from './services/imageService'
 import { StoryInputs } from './types'
 import { config } from './config'
-import { generatePDF } from './services/pdfService'
 import { exportAsImage } from './services/directImageExport'
 import { audioService } from './services/audioService'
 
@@ -25,6 +24,30 @@ const getFallbackImage = (theme: string): string => {
   return themeImages[theme] || 'https://images.unsplash.com/photo-1488751045188-3c55bbf9a3fa?w=800&h=600&fit=crop';
 };
 
+// Story type options
+const storyTypes = [
+  { id: 'Adventure', emoji: '🗺️', label: 'Adventure' },
+  { id: 'Fantasy', emoji: '✨', label: 'Fantasy' },
+  { id: 'Educational', emoji: '📚', label: 'Educational' },
+  { id: 'Bedtime', emoji: '🌙', label: 'Bedtime' },
+  { id: 'Animal', emoji: '🐾', label: 'Animal' },
+  { id: 'Space', emoji: '🚀', label: 'Space' },
+  { id: 'Underwater', emoji: '🐠', label: 'Underwater' },
+  { id: 'Fairy Tale', emoji: '👑', label: 'Fairy Tale' }
+];
+
+// Character type options
+const characterTypes = [
+  { id: 'Human Child', emoji: '👧', label: 'Human Child' },
+  { id: 'Animal', emoji: '🦁', label: 'Animal' },
+  { id: 'Robot', emoji: '🤖', label: 'Robot' },
+  { id: 'Superhero', emoji: '🦸', label: 'Superhero' },
+  { id: 'Magical Creature', emoji: '🦄', label: 'Magical Creature' },
+  { id: 'Alien', emoji: '👽', label: 'Alien' },
+  { id: 'Dinosaur', emoji: '🦕', label: 'Dinosaur' },
+  { id: 'Fairy', emoji: '🧚', label: 'Fairy' }
+];
+
 interface StoryRequest {
   childName: string;
   additionalChildren: string[];  // New field for additional children
@@ -43,10 +66,11 @@ function App() {
   const [additionalChildren, setAdditionalChildren] = useState<string[]>(['']); // New state for additional children
   const [age, setAge] = useState<number>(5);
   const [selectedTheme, setSelectedTheme] = useState(''); // Renamed from theme to selectedTheme
+  const [selectedStoryType, setSelectedStoryType] = useState(''); // New state for story type
+  const [selectedCharacterType, setSelectedCharacterType] = useState(''); // New state for character type
   const [moral, setMoral] = useState('');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const storyRef = useRef<HTMLDivElement>(null);
-  const [html2pdfLoaded, setHtml2pdfLoaded] = useState<boolean>(false);
   const [ollamaAvailable, setOllamaAvailable] = useState<boolean>(false);
 
   // Load html2pdf.js from CDN
@@ -56,7 +80,6 @@ function App() {
     script.async = true;
     script.onload = () => {
       console.log('html2pdf.js loaded successfully');
-      setHtml2pdfLoaded(true);
     };
     script.onerror = () => {
       console.error('Failed to load html2pdf.js');
@@ -104,18 +127,26 @@ function App() {
   // Test function to directly test image generation
   const testImageGeneration = async () => {
     try {
-      console.log('Testing image generation with a simple prompt...');
-      const testInputs: StoryInputs = {
-        mainCharacter: 'Test Character',
-        setting: 'Test Setting',
-        theme: 'magic'
-      };
-      const testStory = 'This is a test story about a magical adventure.';
+      console.log('Testing image generation...');
+      const testStory = 'Once upon a time, there was a magical unicorn who loved to paint rainbows in the sky. The unicorn made friends with a friendly dragon who could breathe colorful fire. Together, they created the most beautiful art in the whole kingdom.';
+      const testTheme = 'magic';
       
-      const imageUrl = await generateStoryImage(testStory, testInputs.theme);
-      console.log('Test image generation result:', imageUrl.substring(0, 50) + '...');
+      const imageUrl = await generateStoryImage(testStory, testTheme);
+      console.log('Test image generated successfully:', imageUrl);
+      
+      // Also test the StoryInputs interface
+      const testInputs: StoryInputs = {
+        mainCharacter: 'Unicorn',
+        setting: 'in a magical forest',
+        theme: 'magic',
+        storyType: 'Fantasy',
+        characterType: 'Magical Creature',
+        additionalCharacters: ['Dragon']
+      };
+      
+      console.log('StoryInputs interface test:', testInputs);
     } catch (error) {
-      console.error('Test image generation failed:', error);
+      console.error('Error testing image generation:', error);
     }
   };
 
@@ -163,6 +194,16 @@ function App() {
     audioService.playThemeHoverSound();
   };
 
+  // Function to handle story type hover
+  const handleStoryTypeHover = () => {
+    audioService.playThemeHoverSound();
+  };
+
+  // Function to handle character type hover
+  const handleCharacterTypeHover = () => {
+    audioService.playThemeHoverSound();
+  };
+
   const handleAddChild = () => {
     setAdditionalChildren([...additionalChildren, '']);
   };
@@ -202,7 +243,10 @@ function App() {
           setting: validAdditionalChildren.length > 0 
             ? `with ${validAdditionalChildren.join(', ')}` 
             : 'in a magical place',
-          theme: selectedTheme
+          theme: selectedTheme,
+          storyType: selectedStoryType || 'Adventure',
+          characterType: selectedCharacterType || 'Human Child',
+          additionalCharacters: validAdditionalChildren
         };
 
         // Generate story using Ollama
@@ -216,7 +260,16 @@ function App() {
       } else {
         // Use mock story if Ollama is not available
         console.log('Ollama is not available, using mock story');
-        const mockStory = generateMockStory(childName, validAdditionalChildren, selectedTheme, age, moral, length);
+        const mockStory = generateMockStory(
+          childName, 
+          validAdditionalChildren, 
+          selectedTheme, 
+          age, 
+          moral, 
+          length,
+          selectedStoryType,
+          selectedCharacterType
+        );
         const mockImageUrl = getFallbackImage(selectedTheme);
         
         setStory(mockStory);
@@ -227,15 +280,30 @@ function App() {
       setError('Failed to generate story. Please try again.');
       
       // Fallback to mock story if Ollama fails
-      const mockStory = generateMockStory(childName, validAdditionalChildren, selectedTheme, age, moral, length);
+      const mockStory = generateMockStory(
+        childName, 
+        validAdditionalChildren, 
+        selectedTheme, 
+        age, 
+        moral, 
+        length,
+        selectedStoryType,
+        selectedCharacterType
+      );
       const mockImageUrl = getFallbackImage(selectedTheme);
       
       setStory(mockStory);
       setImageUrl(mockImageUrl);
     } finally {
-      setIsLoading(false);
       // Stop the background music when story generation is complete
       audioService.stopBackgroundMusic();
+      // Play the rimshot sound when the story has finished generating
+      audioService.playRimshotSound();
+      
+      // Add a small delay before hiding the loading animation to ensure smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   };
 
@@ -246,50 +314,69 @@ function App() {
     theme: string, 
     age: number, 
     moral: string, 
-    length: 'short' | 'medium' | 'long'
+    length: 'short' | 'medium' | 'long',
+    storyType: string,
+    characterType: string
   ): string => {
     // Create a list of all children
     const allChildren = [childName, ...additionalChildren];
-    const childrenList = allChildren.length > 1 
-      ? `${allChildren.slice(0, -1).join(', ')} and ${allChildren[allChildren.length - 1]}`
-      : childName;
     
-    // Theme descriptions
-    const themeDescriptions: Record<string, string> = {
-      'friendship': 'learning about friendship and working together',
-      'adventure': 'going on an exciting adventure',
-      'magic': 'discovering magical powers',
-      'animals': 'meeting talking animals',
-      'space': 'exploring the stars and planets',
-      'ocean': 'swimming with sea creatures',
-      'forest': 'exploring a magical forest',
-      'school': 'having fun at school'
-    };
-    
-    const themeDescription = themeDescriptions[theme] || 'having a wonderful time';
-    
-    // Generate a story based on the inputs
-    if (additionalChildren.length > 0) {
-      return `Once upon a time, ${childrenList} were ${themeDescription}. 
-
-${childName} had just turned ${age} years old and was excited to celebrate with their friends.
-
-As they ${themeDescription}, they learned an important lesson about ${moral || 'being kind to others'}. 
-
-${additionalChildren[0]} had an idea to make the day even more special, and ${additionalChildren.length > 1 ? `${additionalChildren[1]} helped put the plan into action.` : 'everyone helped put the plan into action.'}
-
-They all worked together and had the most amazing time! The end.`;
+    // Create a character description based on the character type
+    let characterDescription = '';
+    if (characterType === 'Animal') {
+      characterDescription = `${childName} was a friendly animal`;
+    } else if (characterType === 'Robot') {
+      characterDescription = `${childName} was a clever robot`;
+    } else if (characterType === 'Superhero') {
+      characterDescription = `${childName} was a brave superhero`;
+    } else if (characterType === 'Magical Creature') {
+      characterDescription = `${childName} was a magical creature`;
+    } else if (characterType === 'Alien') {
+      characterDescription = `${childName} was a curious alien`;
+    } else if (characterType === 'Dinosaur') {
+      characterDescription = `${childName} was a friendly dinosaur`;
+    } else if (characterType === 'Fairy') {
+      characterDescription = `${childName} was a tiny fairy`;
     } else {
-      return `Once upon a time, ${childName} was ${themeDescription}. 
-
-${childName} had just turned ${age} years old and was excited to celebrate with everyone.
-
-As ${childName} ${themeDescription}, they learned an important lesson about ${moral || 'being kind to others'}. 
-
-${childName} had an idea to make the day even more special.
-
-Everyone worked together and had the most amazing time! The end.`;
+      characterDescription = `${childName} was a ${age}-year-old child`;
     }
+    
+    // Create a story based on the story type
+    let storyContent = '';
+    if (storyType === 'Adventure') {
+      storyContent = `${characterDescription} who loved going on adventures. One day, ${childName} decided to explore a mysterious ${theme} place.`;
+    } else if (storyType === 'Fantasy') {
+      storyContent = `${characterDescription} who lived in a magical world. One day, ${childName} discovered a special ${theme} power.`;
+    } else if (storyType === 'Educational') {
+      storyContent = `${characterDescription} who was very curious about ${theme}. One day, ${childName} learned something amazing about it.`;
+    } else if (storyType === 'Bedtime') {
+      storyContent = `${characterDescription} who was getting ready for bed. As ${childName} drifted off to sleep, they dreamed about ${theme}.`;
+    } else if (storyType === 'Animal') {
+      storyContent = `${characterDescription} who lived in the forest. One day, ${childName} met some other animals who were interested in ${theme}.`;
+    } else if (storyType === 'Space') {
+      storyContent = `${characterDescription} who loved looking at the stars. One night, ${childName} saw something amazing in the sky related to ${theme}.`;
+    } else if (storyType === 'Underwater') {
+      storyContent = `${characterDescription} who lived in the ocean. One day, ${childName} discovered a special ${theme} underwater.`;
+    } else if (storyType === 'Fairy Tale') {
+      storyContent = `Once upon a time, ${characterDescription} who lived in a kingdom. One day, ${childName} encountered a magical ${theme}.`;
+    } else {
+      storyContent = `${characterDescription} who loved ${theme}. One day, ${childName} had an amazing adventure.`;
+    }
+    
+    // Add additional children to the story if there are any
+    if (additionalChildren.length > 0) {
+      storyContent += ` ${childName} invited ${additionalChildren.join(', ')} to join in the fun.`;
+    }
+    
+    // Add a moral to the story if provided
+    if (moral) {
+      storyContent += ` Through this adventure, ${childName} learned that ${moral}.`;
+    }
+    
+    // End the story
+    storyContent += ` Everyone worked together and had the most amazing time! The end.`;
+    
+    return storyContent;
   };
 
   const handleExportImage = async () => {
@@ -402,6 +489,40 @@ Everyone worked together and had the most amazing time! The end.`;
           </div>
         </div>
 
+        <div className="input-group">
+          <label>Choose a story type:</label>
+          <div className="story-type-grid">
+            {storyTypes.map((type) => (
+              <button
+                key={type.id}
+                className={`story-type-button ${selectedStoryType === type.id ? 'selected' : ''}`}
+                onClick={() => setSelectedStoryType(type.id)}
+                onMouseEnter={handleStoryTypeHover}
+              >
+                <span className="story-type-emoji">{type.emoji}</span>
+                <span className="story-type-label">{type.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="input-group">
+          <label>Choose a character type:</label>
+          <div className="character-type-grid">
+            {characterTypes.map((type) => (
+              <button
+                key={type.id}
+                className={`character-type-button ${selectedCharacterType === type.id ? 'selected' : ''}`}
+                onClick={() => setSelectedCharacterType(type.id)}
+                onMouseEnter={handleCharacterTypeHover}
+              >
+                <span className="character-type-emoji">{type.emoji}</span>
+                <span className="character-type-label">{type.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <button
           className="generate-button"
           onClick={handleGenerateStory}
@@ -424,6 +545,10 @@ Everyone worked together and had the most amazing time! The end.`;
                   {additionalChildren.some(name => name.trim() !== '') 
                     ? `Featuring ${childName} and ${additionalChildren.filter(name => name.trim() !== '').join(', ')}` 
                     : `Theme: ${selectedTheme}`}
+                </p>
+                <p className="story-details">
+                  {selectedStoryType && `Story Type: ${selectedStoryType}`}
+                  {selectedCharacterType && ` • Character Type: ${selectedCharacterType}`}
                 </p>
               </div>
               

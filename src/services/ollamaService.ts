@@ -1,8 +1,4 @@
-interface StoryInputs {
-  mainCharacter: string;
-  setting: string;
-  theme: string;
-}
+import { StoryInputs } from '../types';
 
 export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<string> => {
   try {
@@ -10,9 +6,11 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
     
     const prompt = `Create a short, funny children's story (max 200 words) that is easy to read and understand for children under 10 years old. Use simple words and short sentences.
 
-    - Main character: ${inputs.mainCharacter}
+    - Main character: ${inputs.mainCharacter} (a ${inputs.characterType})
     - Setting: ${inputs.setting}
     - Theme: ${inputs.theme}
+    - Story type: ${inputs.storyType}
+    - Additional characters: ${inputs.additionalCharacters.length > 0 ? inputs.additionalCharacters.join(', ') : 'none'}
     
     The story should:
     - Use simple words that a child under 10 can understand
@@ -23,6 +21,7 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
     - Include some dialogue to make it more engaging
     - Use repetition and simple patterns that children enjoy
     - Avoid scary or complex themes
+    - Be a ${inputs.storyType} story with ${inputs.characterType} characters
     
     Make it extra silly and fun!`;
 
@@ -58,8 +57,9 @@ export const generateStoryWithOllama = async (inputs: StoryInputs): Promise<stri
   } catch (error) {
     console.error('Error generating story with Ollama:', error);
     // Fallback to a simple story if the API call fails
-    return `Once upon a time, there was a ${inputs.mainCharacter} who lived in ${inputs.setting}. 
-    They had a funny adventure related to ${inputs.theme}. Everyone laughed and had a great time! 
-    The end.`;
+    return `Once upon a time, there was a ${inputs.mainCharacter} who was a ${inputs.characterType}. 
+    They lived in ${inputs.setting} and loved ${inputs.theme}. 
+    One day, they had an amazing ${inputs.storyType} adventure with their friends. 
+    Everyone laughed and had a great time! The end.`;
   }
 }; 

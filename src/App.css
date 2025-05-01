@@ -222,6 +222,9 @@ textarea {
   border: 4px dashed var(--accent-color);
   position: relative;
   transform: rotate(-1deg);
+  min-height: 300px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .story-container::before {
@@ -288,6 +291,9 @@ textarea {
   border: 4px dashed var(--accent-color);
   position: relative;
   transform: rotate(-1deg);
+  min-height: 300px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .loading-container::before {
@@ -359,10 +365,9 @@ textarea {
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-top: 1rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
 .theme-button {
@@ -370,15 +375,77 @@ textarea {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
-  border: 3px solid #e0e0e0;
-  border-radius: 20px;
-  background: white;
+  padding: 15px;
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
   cursor: pointer;
   transition: all 0.3s ease;
-  min-height: 120px;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.story-type-grid, .character-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.story-type-button, .character-type-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 15px;
+  background-color: white;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.story-type-button:hover, .character-type-button:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  border-color: #ff9ecd;
+  animation: wiggle 0.5s ease;
+}
+
+.story-type-button.selected, .character-type-button.selected {
+  border-color: #ff9ecd;
+  background-color: #fff5f9;
+  box-shadow: 0 8px 16px rgba(255, 158, 205, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.story-type-emoji, .character-type-emoji {
+  font-size: 3.5rem;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+  transition: transform 0.3s ease;
+}
+
+.story-type-button:hover .story-type-emoji, 
+.character-type-button:hover .character-type-emoji {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.story-type-label, .character-type-label {
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.8);
+  border-radius: 10px;
+  transform: rotate(-1deg);
 }
 
 .theme-button::before {
@@ -386,10 +453,12 @@ textarea {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 0;
 }
 
 .theme-button:hover {
@@ -541,10 +610,17 @@ textarea {
 }
 
 .story-theme {
-  color: #7f8c8d;
   font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 10px;
   font-style: italic;
-  page-break-after: avoid;
+}
+
+.story-details {
+  font-size: 1rem;
+  color: #888;
+  margin-bottom: 15px;
+  font-style: italic;
 }
 
 .story-image-container {
