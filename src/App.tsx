@@ -434,25 +434,20 @@ function App() {
       
       <div className="form-container">
         <div className="input-group">
-          <label htmlFor="childName">Main Child's Name:</label>
+          <label>Characters</label>
           <input
             type="text"
-            id="childName"
             value={childName}
             onChange={(e) => setChildName(e.target.value)}
-            placeholder="Enter the main child's name"
+            placeholder="Main Person"
           />
-        </div>
-
-        <div className="additional-children">
-          <label>Additional Children (Optional):</label>
           {additionalChildren.map((name, index) => (
             <div key={index} className="additional-child-input">
               <input
                 type="text"
                 value={name}
                 onChange={(e) => handleAdditionalChildChange(index, e.target.value)}
-                placeholder={`Enter child ${index + 2}'s name`}
+                placeholder={`Person ${index + 2}`}
               />
               {index > 0 && (
                 <button 
@@ -468,7 +463,7 @@ function App() {
             className="add-child-btn"
             onClick={handleAddChild}
           >
-            + Add Another Child
+            + Add Another Person
           </button>
         </div>
 
@@ -535,7 +530,6 @@ function App() {
 
         {isLoading && <LoadingAnimation />}
 
-        {/* Story Display */}
         {story && (
           <div className="story-container">
             <div id="story-content" className="story-content">
