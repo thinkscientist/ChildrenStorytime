@@ -252,8 +252,15 @@ function App() {
         // Generate story using Ollama
         const generatedStory = await generateStoryWithOllama(inputs);
         
-        // Generate image based on the story content
-        const imageUrl = await generateStoryImage(generatedStory, selectedTheme);
+        // Generate image based on the story content and all input fields
+        const imageUrl = await generateStoryImage(
+          generatedStory, 
+          selectedTheme,
+          selectedStoryType || 'Adventure',
+          selectedCharacterType || 'Human Child',
+          childName,
+          validAdditionalChildren
+        );
         
         setStory(generatedStory);
         setImageUrl(imageUrl);
@@ -580,7 +587,7 @@ function App() {
                 className="export-button"
                 disabled={!story}
               >
-                Save as Image
+                Save Memory 
               </button>
             </div>
           </div>

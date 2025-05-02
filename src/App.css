@@ -97,7 +97,7 @@ body {
   position: absolute;
   top: -15px;
   left: -15px;
-  font-size: 2rem;
+  font-size: 3rem;
 }
 
 .form-container::after {
@@ -105,7 +105,7 @@ body {
   position: absolute;
   bottom: -15px;
   right: -15px;
-  font-size: 2rem;
+  font-size: 5rem;
 }
 
 .input-group {
@@ -308,7 +308,7 @@ input:focus, select:focus, textarea:focus {
   position: absolute;
   top: -20px;
   left: -20px;
-  font-size: 2.5rem;
+  font-size: 3rem;
 }
 
 .story-text {

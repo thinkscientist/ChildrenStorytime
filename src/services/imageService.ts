@@ -1,43 +1,53 @@
 import { config } from '../config';
 
 // This function will generate an image based on the story content
-export const generateStoryImage = async (story: string, theme: string): Promise<string> => {
+export const generateStoryImage = async (
+  story: string, 
+  theme: string,
+  storyType: string,
+  characterType: string,
+  mainCharacter: string,
+  additionalCharacters: string[]
+): Promise<string> => {
   try {
-    // Create a prompt based on the story content
-    const prompt = createImagePrompt(story, theme);
+    // Create a prompt based on the story content and all input fields
+    const prompt = createImagePrompt(story, theme, storyType, characterType, mainCharacter, additionalCharacters);
     console.log('Generated image prompt:', prompt);
     
-    // Call the Stability AI API with both prompt and theme
+    // Call the Stability AI API with the enhanced prompt
     return await callStabilityAPI(prompt, theme);
   } catch (error) {
     console.error('Error in generateStoryImage:', error);
     // Return a fallback image if the API call fails
-    return getFallbackImage(theme);
+    return getFallbackImage(theme, storyType, characterType);
   }
 };
 
 // Create a prompt for the image generation API based on the story content
-const createImagePrompt = (story: string, theme: string): string => {
+const createImagePrompt = (story: string, theme: string, storyType: string, characterType: string, mainCharacter: string, additionalCharacters: string[]): string => {
   // Extract more content from the story
   const paragraphs = story.split('\n').filter(p => p.trim().length > 0);
   
   // Get the first two paragraphs for more context
   const storyContent = paragraphs.slice(0, 2).join(' ');
   
-  // Extract character names (assuming they start with capital letters)
-  const characterMatches = storyContent.match(/[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g) || [];
-  const characters = [...new Set(characterMatches)].join(', ');
+  // Create a list of all characters
+  const allCharacters = [mainCharacter, ...additionalCharacters.filter(name => name.trim() !== '')];
+  const characterList = allCharacters.length > 1 
+    ? `${allCharacters.slice(0, -1).join(', ')} and ${allCharacters[allCharacters.length - 1]}`
+    : mainCharacter;
   
   // Create a more detailed, child-friendly prompt
-  return `A colorful, child-friendly illustration for a children's story about ${theme}. 
+  return `A colorful, child-friendly illustration for a ${storyType.toLowerCase()} story about ${theme}. 
   The scene should be bright, cheerful, and suitable for children under 10. 
   Style: cartoon, vibrant colors, simple shapes, no scary elements. 
-  Characters: ${characters || 'the main characters'}. 
-  Scene: ${storyContent.substring(0, 200)}...`;
+  Characters: ${characterList} as ${characterType.toLowerCase()} characters. 
+  Scene: ${storyContent.substring(0, 200)}... 
+  The illustration should capture the essence of the ${storyType.toLowerCase()} theme while maintaining a playful and imaginative atmosphere.`;
 };
 
 // Get a fallback image based on the theme or prompt
-const getFallbackImage = (theme: string, prompt?: string): string => {
+const getFallbackImage = (theme: string, storyType: string, characterType: string, prompt?: string): string => {
   // First try to get a theme-specific image
   const themeImages: Record<string, string> = {
     'friendship': 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&h=600&fit=crop',
