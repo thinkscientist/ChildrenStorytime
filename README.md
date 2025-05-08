@@ -50,7 +50,7 @@ A fun, interactive web application that generates silly stories for children wit
    - Start the Ollama service
    - The app will automatically detect if Ollama is available
    - Ensure you have the `granite3.3` model installed
-   - Once Ollama is instaled run `ollama run granite3.3` in the terminal
+   - Once Ollama is instaled run `ollama pull granite3.3` in the terminal
 
 ## Running the Application
 
