@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "@types/html2canvas": "^1.4.6",
+    "@types/html2canvas": "^1.0.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

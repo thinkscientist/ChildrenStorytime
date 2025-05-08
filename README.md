@@ -25,7 +25,7 @@ A fun, interactive web application that generates silly stories for children wit
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/children-storytime.git
+   git clone https://github.com/thinkscientist/ChildrenStorytime.git
    cd children-storytime
    ```
 
@@ -45,10 +45,12 @@ A fun, interactive web application that generates silly stories for children wit
      REACT_APP_STABILITY_API_KEY=your_api_key_here
      ```
 
-4. (Optional) Set up Ollama for story generation:
+4. Set up Ollama for story generation:
    - Install Ollama from [ollama.ai](https://ollama.ai/)
    - Start the Ollama service
    - The app will automatically detect if Ollama is available
+   - Ensure you have the `granite3.3` model installed
+   - Once Ollama is instaled run `ollama run granite3.3` in the terminal
 
 ## Running the Application
 
